@@ -731,12 +731,12 @@ class WhisperResult:
         self.remove_no_word_segments()
 
     def merge_the_sentences(self, min_gap, max_words):
-        indices = self.get_gap_indices(min_gap) + 1
+        indices = self.get_gap_indices(min_gap)
 
         for i in reversed(indices):
-            seg = self.segments[i]
+            seg = self.segments[i + 1]
             if seg.has_words and seg.word_count() < max_words:
-                self.add_segments(i, i - 1, inplace=True)
+                self.add_segments(i, i + 1, inplace=True)
 
             else:
                 continue
