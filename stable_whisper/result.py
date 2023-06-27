@@ -770,7 +770,6 @@ class WhisperResult:
         max_chars: int = None,
         is_sum_max: bool = False,
         lock: bool = False,
-        direction=False,
     ):
         """
 
@@ -798,7 +797,6 @@ class WhisperResult:
             max_chars=max_chars,
             is_sum_max=is_sum_max,
             lock=lock,
-            direction=direction,
         )
         return self
 
