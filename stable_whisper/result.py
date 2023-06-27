@@ -703,75 +703,40 @@ class WhisperResult:
         if len(indices) == 0:
             return
 
-        if direction:
-            for i in indices:
-                seg = self.segments[i]
-                if (
-                    max_words
-                    and seg.has_words
-                    and (
-                        (
-                            seg.word_count() + self.segments[i + 1].word_count()
-                            > max_words
-                        )
-                        if is_sum_max
-                        else (
-                            seg.word_count() > max_words
-                            and self.segments[i + 1].word_count() > max_words
-                        )
+        for i in reversed(indices):
+            seg = self.segments[i]
+            if (
+                max_words
+                and seg.has_words
+                and (
+                    (seg.word_count() + self.segments[i + 1].word_count() > max_words)
+                    if is_sum_max
+                    else (
+                        seg.word_count() > max_words
+                        and self.segments[i + 1].word_count() > max_words
                     )
-                ) or (
-                    max_chars
-                    and (
-                        (
-                            seg.char_count() + self.segments[i + 1].char_count()
-                            > max_chars
-                        )
-                        if is_sum_max
-                        else (
-                            seg.char_count() > max_chars
-                            and self.segments[i + 1].char_count() > max_chars
-                        )
+                )
+            ) or (
+                max_chars
+                and (
+                    (seg.char_count() + self.segments[i + 1].char_count() > max_chars)
+                    if is_sum_max
+                    else (
+                        seg.char_count() > max_chars
+                        and self.segments[i + 1].char_count() > max_chars
                     )
-                ):
-                    continue
-                self.add_segments(i, i + 1, inplace=True, lock=lock)
-            self.remove_no_word_segments()
+                )
+            ):
+                continue
+            self.add_segments(i, i + 1, inplace=True, lock=lock)
+        self.remove_no_word_segments()
 
-        else:
-            for i in reversed(indices):
-                seg = self.segments[i]
-                if (
-                    max_words
-                    and seg.has_words
-                    and (
-                        (
-                            seg.word_count() + self.segments[i + 1].word_count()
-                            > max_words
-                        )
-                        if is_sum_max
-                        else (
-                            seg.word_count() > max_words
-                            and self.segments[i + 1].word_count() > max_words
-                        )
-                    )
-                ) or (
-                    max_chars
-                    and (
-                        (
-                            seg.char_count() + self.segments[i + 1].char_count()
-                            > max_chars
-                        )
-                        if is_sum_max
-                        else (
-                            seg.char_count() > max_chars
-                            and self.segments[i + 1].char_count() > max_chars
-                        )
-                    )
-                ):
-                    continue
-                self.add_segments(i, i + 1, inplace=True, lock=lock)
-            self.remove_no_word_segments()
+
+    def merge_the_first_sentence(self, max_words: int = 6):
+        seg = self.segments[0]
+        if seg.has_words and seg.word_count() < max_words:
+            self.add_segments(0, 1, inplace=True)
+
 
     def split_by_gap(self, max_gap: float = 0.1, lock: bool = False):
         """
