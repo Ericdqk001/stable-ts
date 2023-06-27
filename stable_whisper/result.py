@@ -698,7 +698,6 @@ class WhisperResult:
         max_chars: int = None,
         is_sum_max: bool = False,
         lock: bool = False,
-        direction=False,
     ):
         if len(indices) == 0:
             return
@@ -731,12 +730,21 @@ class WhisperResult:
             self.add_segments(i, i + 1, inplace=True, lock=lock)
         self.remove_no_word_segments()
 
+    def merge_the_sentences(self, min_gap, max_words):
+        indices = self.get_gap_indices(min_gap) + 1
+
+        for i in reversed(indices):
+            seg = self.segments[i]
+            if seg.has_words and seg.word_count() < max_words:
+                self.add_segments(i, i - 1, inplace=True)
+
+            else:
+                continue
 
     def merge_the_first_sentence(self, max_words: int = 6):
         seg = self.segments[0]
         if seg.has_words and seg.word_count() < max_words:
             self.add_segments(0, 1, inplace=True)
-
 
     def split_by_gap(self, max_gap: float = 0.1, lock: bool = False):
         """
